@@ -1,6 +1,6 @@
 ﻿namespace LucasPropato.Prototipos.Ej04v2
 {
-    internal class PersonasModelo
+    public class PersonasModelo
     {
         public List<Persona> Personas { get; set; } // de ahi crear clase Persona
 
@@ -24,42 +24,47 @@
             };
         }
 
-        public string Modificar(Persona datosIngresadosPersona)
+        public string Nuevo(Persona nuevaPersona)
         {
-            return null;
+            string error = nuevaPersona.Validar(); // primero validar persona (objeto en sí mismo)
+            if (error != null)
+            {
+                return error;
+            }
 
-            /*
-            string error = datosIngresadosPersona.Validar(); // primero validar persona (objeto en sí mismo)
+            // validaciones de negocio para adición (que no puede hacer el objeto en sí mismo):
+
+            foreach (var personaExistente in Personas) // Ej. no quiero 2 personas con el mismo documento.
+            {
+                if (personaExistente.Documento == nuevaPersona.Documento)
+                {
+                    return "Ya existe una persona con el documento indicado.";
+                }
+            }
+
+            Personas.Add(nuevaPersona);
+
+            return null;
+        }
+
+        public string Modificar(Persona nuevosDatosPersona)
+        {
+            string error = nuevosDatosPersona.Validar(); // primero validar persona (objeto en sí mismo)
             if(error != null)
             {
                 return error;
             }
 
-            // validaciones de negocio para adición o modificación (que no puede hacer el objeto en sí mismo):
+            // validaciones de negocio para modificación (que no puede hacer el objeto en sí mismo):
 
-            if (PersonaEnEdicion == null) // si estoy dando de alta
+            if(PersonaEnEdicion.Documento != nuevosDatosPersona.Documento) // Ej. no se puede modificar nro de documento.
             {
-                foreach (var personaExistente in Personas) // Ej. no quiero 2 personas con el mismo documento.
-                {
-                    if (personaExistente.Documento == datosIngresadosPersona.Documento)
-                    {
-                        return "Ya existe una persona con el documento indicado.";
-                    }
-                }
-
-                Personas.Add(datosIngresadosPersona);
+                return "No puede modificar el documento.";
             }
 
-            else // si estoy modificando
-            {
-                if(PersonaEnEdicion.Documento != datosIngresadosPersona.Documento) // Ej. no se puede modificar nro de documento.
-                {
-                    return "No puede modificar el documento.";
-                }
+            PersonaEnEdicion.ActualizarCon(nuevosDatosPersona); // pisar los datos sin cambiar el objeto
 
-                PersonaEnEdicion.ActualizarCon(datosIngresadosPersona); // pisar los datos sin cambiar el objeto
-            }
-            */
+            return null;
         }
     }
 }

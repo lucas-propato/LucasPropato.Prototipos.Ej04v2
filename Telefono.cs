@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LucasPropato.Prototipos.Ej04v2
 {
-    internal class Telefono
+    public class Telefono
     {
         public TipoTelefono Tipo { get; set; } // de ahí crear clase especial de enumeración TipoTelefono
         public int CodPais { get; set; }

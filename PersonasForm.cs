@@ -1,6 +1,14 @@
-using System.Drawing.Text;
+ï»¿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace LucasPropato.Prototipos.Ej04
+namespace LucasPropato.Prototipos.Ej04v2
 {
     public partial class PersonasForm : Form
     {
@@ -13,17 +21,13 @@ namespace LucasPropato.Prototipos.Ej04
 
         private void PersonasForm_Load(object sender, EventArgs e) // lo que quiero para que carge la pantalla
         {
-            TipoCombo.Items.Add(TipoTelefono.Casa.ToString());
-            TipoCombo.Items.Add(TipoTelefono.Trabajo.ToString());
-            TipoCombo.Items.Add(TipoTelefono.Otro.ToString());
-
             CargarLista();
         }
 
         private void CargarLista()
         {
             PersonasList.Items.Clear();
-            
+
             foreach (var persona in modelo.Personas) // para cada persona en mi modelo
             {
                 var fila = new ListViewItem(); // cada fila de la lista
@@ -40,80 +44,28 @@ namespace LucasPropato.Prototipos.Ej04
         {
             if (PersonasList.SelectedItems.Count == 0) // si no selecciono
             {
-                MessageBox.Show("Seleccione un ítem de la lista primero.");
+                MessageBox.Show("Seleccione un Ã­tem de la lista primero.");
                 return;
             }
 
-            var personaAEditar = (Persona)PersonasList.SelectedItems[0].Tag; // tag hace referencia a objeto Persona (caasteo), 0 porque seleccióna una fila
-
-            DocumentoText.Text = personaAEditar.Documento.ToString(); // le doy funcionalidad para editar los textboxs
-            ApellidoText.Text = personaAEditar.Apellido;
-            NombreText.Text = personaAEditar.Nombre;
-
-            TipoCombo.SelectedItem = personaAEditar.Telefono.Tipo; // cuando son cadenas es SelectedItem
-            CodAreaText.Text = personaAEditar.Telefono.CodArea.ToString();
-            CodPaisText.Text = personaAEditar.Telefono.CodPais.ToString();
-            NumeroText.Text = personaAEditar.Telefono.Numero.ToString();
-
-            ListaGroup.Enabled = false; // deshabilito lista
-            EdicionGroup.Enabled = true; // habilito para editar
-
+            var personaAEditar = (Persona)PersonasList.SelectedItems[0].Tag; // tag hace referencia a objeto Persona (caasteo), 0 porque selecciÃ³na una fila
             modelo.PersonaEnEdicion = personaAEditar; // para boton aceptar
+
+            var formEdicion = new PersonaEditarForm();
+            formEdicion.Modelo = modelo;
+            formEdicion.ShowDialog(); // el cÃ³digo se detiene
+
+            // hasta que el formulario se cierra
+            CargarLista();
         }
 
-        private void CancelarBoton_Click(object sender, EventArgs e)
+        private void NuevoBoton_Click(object sender, EventArgs e) // hay que habilitar ediciÃ³n, pero no cargarle nada
         {
-            DocumentoText.Text = string.Empty;
-            ApellidoText.Text = string.Empty;
-            NombreText.Text = string.Empty;
+            var formNuevo = new PersonaNuevoForm();
+            formNuevo.Modelo = modelo; // para compartir modelo, que se vean los cambios
+            formNuevo.ShowDialog(); // mostrar nueva ventana
 
-            TipoCombo.SelectedItem = string.Empty;
-            CodAreaText.Text = string.Empty;
-            CodPaisText.Text = string.Empty;
-            NumeroText.Text = string.Empty;
-
-            ListaGroup.Enabled = true; // habilitamos lista
-            EdicionGroup.Enabled = false; // deshabilitamos edición
-        }
-
-        private void NuevoBoton_Click(object sender, EventArgs e) // hay que habilitar edición, pero no cargarle nada
-        {
-            ListaGroup.Enabled = false;
-            EdicionGroup.Enabled = true;
-
-            modelo.PersonaEnEdicion = null; // para boton aceptar
-        }
-
-        private void AceptarBoton_Click(object sender, EventArgs e)
-        {
-            if (!int.TryParse(DocumentoText.Text, out var doc)) // primero validar
-            {
-                MessageBox.Show("El documento no es válido.");
-                return;
-            }
-
-            Persona persona = new() // la única responsabilidad de la pantalla es armar un paquete con los datos..
-            {
-                Documento = doc,
-                Apellido = ApellidoText.Text,
-                Nombre = NombreText.Text,
-                Telefono = new Telefono
-                {
-                    Tipo = Enum.Parse<TipoTelefono>(TipoCombo.Text), // no hace falta validar ComboBox
-                    CodPais = int.Parse(CodPaisText.Text),
-                    CodArea = int.Parse(CodAreaText.Text),
-                    Numero = int.Parse(NumeroText.Text)
-                }
-            };
-
-            string error = modelo.Modificar(persona); // ..y pasárselo al modelo (para que haga en este caso modificaciones)
-            if (error != null) // si tengo error
-            {
-                MessageBox.Show(error); // no hace nada y lo muestro
-                return;
-            }
-
-            CargarLista(); // refrescar lista
+            CargarLista(); // actualizo los datos
         }
     }
 }

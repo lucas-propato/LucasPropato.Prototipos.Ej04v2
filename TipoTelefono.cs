@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LucasPropato.Prototipos.Ej04v2
 {
-    internal enum TipoTelefono // no es class, es enum
+    public enum TipoTelefono // no es class, es enum
     {
         Casa,
         Trabajo,
